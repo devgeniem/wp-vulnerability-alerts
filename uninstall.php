@@ -1,0 +1,27 @@
+<?php
+
+// If uninstall is not called from WordPress, exit
+if ( !defined( 'WP_UNINSTALL_PLUGIN' ) ) {
+    exit();
+}
+ 
+$option_name = 'vulnerability-alerts';
+
+if(is_multisite()) {
+	global $wpdb;
+	
+	$blogs = $wpdb->get_results("SELECT blog_id FROM {$wpdb->blogs}", ARRAY_A);
+	if($blogs) {
+		foreach($blogs as $blog) {
+			switch_to_blog($blog['blog_id']);
+			delete_option($option_name);
+			delete_option($option_name . '_notification');
+		}
+		restore_current_blog();
+	}
+} else {
+	delete_option($option_name);
+	delete_option($option_name . '_notification');
+}
+
+?>
